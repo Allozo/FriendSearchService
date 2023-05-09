@@ -6,8 +6,8 @@ from rest_framework.viewsets import GenericViewSet
 from rest_framework.permissions import IsAuthenticated
 from django.shortcuts import render
 
-from friend.models import User
-from friend.serializers import UserSerializer
+from friend.models import User, FriendRequest
+from friend.serializers import UserSerializer, FriendRequestSerializer
 
 
 class UserViewSet(
@@ -18,3 +18,8 @@ class UserViewSet(
     queryset = User.objects.all()
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated, )
+
+
+class FriendRequestListCreateView(generics.ListCreateAPIView):
+    queryset = FriendRequest.objects.all()
+    serializer_class = FriendRequestSerializer

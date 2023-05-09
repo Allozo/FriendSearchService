@@ -18,7 +18,7 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 
-from friend.views import UserViewSet
+from friend.views import UserViewSet, FriendRequestListCreateView
 
 
 user_router = routers.SimpleRouter()
@@ -37,6 +37,10 @@ urlpatterns = [
 
     # Авторизация по сессии
     path('api/v1/session_auth/', include('rest_framework.urls')),
+
+    # Вывод всех заявок в друзья
+    path('api/v1/request_friends/', FriendRequestListCreateView.as_view()),
+
 
     # path('api/v1/users/', UsersAPIList.as_view()),
     # path('api/v1/user/<int:pk>', UserAPIView.as_view()),
