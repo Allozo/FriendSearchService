@@ -17,3 +17,6 @@ class FriendRequest(models.Model):
         default='sent',
         max_length=20
     )
+
+    class Meta:
+        unique_together = ('from_user', 'to_user')
