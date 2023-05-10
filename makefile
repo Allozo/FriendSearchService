@@ -1,7 +1,7 @@
 TESTS = tests
 
 
-CODE = tests src
+CODE = tests FriendSearchService
 
 
 .PHONY: venv
@@ -16,20 +16,19 @@ venv:
 # 	poetry run python -m pytest $(TESTS)
 
 
-# .PHONY: lint
-# lint: ## Lint code
-# 	poetry run python -m flake8 --jobs 4 --statistics --show-source $(CODE)
-# 	poetry run python -m pylint --jobs 4 --rcfile=setup.cfg $(CODE)
-# 	poetry run python -m mypy --install-types $(CODE)
-# 	poetry run python -m black --skip-string-normalization --check $(CODE)
+.PHONY: lint
+lint: ## Lint code
+	poetry run python -m flake8 --jobs 4 --statistics --show-source $(CODE)
+	poetry run python -m pylint --jobs 4 --rcfile=setup.cfg $(CODE)
+	poetry run python -m mypy --install-types $(CODE)
+	poetry run python -m black --skip-string-normalization --check $(CODE)
 
 
-# .PHONY: format
-# format: ## Formats all files
-# 	poetry run python -m isort $(CODE)
-# 	poetry run python -m black --skip-string-normalization $(CODE)
-# 	poetry run python -m autoflake --recursive --in-place --remove-all-unused-imports $(CODE)
-# 	poetry run python -m unify --in-place --recursive $(CODE)
+.PHONY: format
+format: ## Formats all files
+	poetry run python -m isort $(CODE)
+	poetry run python -m black --skip-string-normalization $(CODE)
+	poetry run python -m autoflake --recursive --in-place --remove-all-unused-imports $(CODE)
 
 
 # .PHONY: ci

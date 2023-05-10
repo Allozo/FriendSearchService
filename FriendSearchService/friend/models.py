@@ -4,9 +4,14 @@ from django.db import models
 # Create your models here.
 User = get_user_model()
 
+
 class FriendRequest(models.Model):
-    from_user = models.ForeignKey(User, related_name='friend_requests_sent', on_delete=models.CASCADE)
-    to_user = models.ForeignKey(User, related_name='friend_requests_received', on_delete=models.CASCADE)
+    from_user = models.ForeignKey(
+        User, related_name='friend_requests_sent', on_delete=models.CASCADE
+    )
+    to_user = models.ForeignKey(
+        User, related_name='friend_requests_received', on_delete=models.CASCADE
+    )
     created_at = models.DateTimeField(auto_now_add=True)
     status = models.CharField(
         choices=(
@@ -16,7 +21,7 @@ class FriendRequest(models.Model):
             ('friend', 'Друзья'),
         ),
         default='sent',
-        max_length=20
+        max_length=20,
     )
 
     class Meta:
