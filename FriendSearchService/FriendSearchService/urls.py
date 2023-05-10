@@ -18,11 +18,15 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 
-from friend.views import UserViewSet, FriendRequestListView, send_friend_request
+from friend.views import UserViewSet, FriendRequestViewSet
 
 
 user_router = routers.SimpleRouter()
 user_router.register(r'user', UserViewSet)
+
+friend_router = routers.SimpleRouter()
+friend_router.register(r'friend', FriendRequestViewSet, basename='friend')
+
 
 
 urlpatterns = [
@@ -39,11 +43,8 @@ urlpatterns = [
     path('api/v1/session_auth/', include('rest_framework.urls')),
 
     # Вывод всех заявок в друзья
-    path('api/v1/request_friends/', FriendRequestListView.as_view()),
+    path('api/v1/', include(friend_router.urls)),
 
     # Отправка заявки в друзья
-    path('api/v1/send_friend_request/<int:user_id>', send_friend_request),
-
-    # path('api/v1/users/', UsersAPIList.as_view()),
-    # path('api/v1/user/<int:pk>', UserAPIView.as_view()),
+    path('api/v1/friend/<int:user_id>/send/', FriendRequestViewSet.as_view({'post': 'send'}), name='send_friend_request'),
 ]
