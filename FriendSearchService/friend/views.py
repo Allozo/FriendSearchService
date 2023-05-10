@@ -10,7 +10,7 @@ from django.shortcuts import get_object_or_404
 from django.db.models import QuerySet
 
 from friend.models import User, FriendRequest
-from friend.serializers import UserSerializer, AcceptedFriendRequestSerializer, AllFriendRequestSerializer, IncomingFriendRequestSerializer, SendFriendRequestSerializer, FriendsSerializer, DeleteFriendRequestSerializer
+from friend.serializers import UserSerializer, AcceptedFriendRequestSerializer, AllFriendRequestSerializer, IncomingFriendRequestSerializer, SendFriendRequestSerializer, FriendsSerializer, DeleteFriendRequestSerializer, RejectedFriendRequestSerializer
 from django.urls import path
 
 
@@ -69,11 +69,83 @@ class FriendRequestViewSet(
     def get_urls(self):
         urls = super().get_urls()
         custom_urls = [
-            # path('<int:user_id>/send/', self.send, name='send'),
             path('<int:user_id>/check_status', self.check_status, name='check_status'),
-            # path('<int:user_id>/', self.check_status, name='check_status'),
+            path('<int:user_id>/accept', self.accept, name='accept'),
+            path('<int:user_id>/reject', self.reject, name='reject'),
         ]
         return custom_urls + urls
+
+    def accept(self, request, user_id):
+        # Получаем пользователя, запрос которого хотим принять
+        if User.objects.filter(id=user_id).first() is None:
+            return Response({'status': 'Не существует пользователя, которого хотим проверить'}, status=status.HTTP_400_BAD_REQUEST)
+
+        now_user = request.user
+
+        # Входящее
+        friends_request_to = FriendRequest.objects.filter(
+            from_user=now_user,
+            to_user=user_id,
+            status__in=['incoming', 'rejected']
+        ).first()
+        # Исходящее
+        friends_request_from = FriendRequest.objects.filter(
+            from_user=user_id,
+            to_user=now_user,
+            status__in=['sent', 'rejected']
+        ).first()
+
+        if friends_request_to is None:
+            return Response({'status': f'Нет заявки `incoming` или `rejected` от {now_user} к {user_id}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if friends_request_from is None:
+            return Response({'status': f'Нет заявки `sent` или `rejected` от {user_id} к {now_user}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        friends_request_to.status = 'friend'
+        friends_request_from.status = 'friend'
+
+        friends_request_to.save()
+        friends_request_from.save()
+
+        serializer = AcceptedFriendRequestSerializer(friends_request_to, many=False)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
+
+    def reject(self, request, user_id):
+        # Получаем пользователя, запрос которого хотим принять
+        if User.objects.filter(id=user_id).first() is None:
+            return Response({'status': 'Не существует пользователя, которого хотим проверить'}, status=status.HTTP_400_BAD_REQUEST)
+
+        now_user = request.user
+
+        # Входящее
+        friends_request_to = FriendRequest.objects.filter(
+            from_user=now_user,
+            to_user=user_id,
+            status='incoming',
+        ).first()
+        # Исходящее
+        friends_request_from = FriendRequest.objects.filter(
+            from_user=user_id,
+            to_user=now_user,
+            status='sent',
+        ).first()
+
+        if friends_request_to is None:
+            return Response({'status': f'Нет заявки `incoming` от {now_user} к {user_id}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        if friends_request_from is None:
+            return Response({'status': f'Нет заявки `sent` от {user_id} к {now_user}'}, status=status.HTTP_400_BAD_REQUEST)
+
+        friends_request_to.status = 'rejected'
+        friends_request_from.status = 'rejected'
+
+        friends_request_to.save()
+        friends_request_from.save()
+
+        serializer = RejectedFriendRequestSerializer(friends_request_to, many=False)
+
+        return Response(serializer.data, status=status.HTTP_200_OK)
 
 
     def check_status(self, request, user_id):
@@ -114,15 +186,6 @@ class FriendRequestViewSet(
         # Сериализуем запросы в друзья
         serializer = SendFriendRequestSerializer(incoming_requests, many=True)
 
-        return Response(serializer.data)
-
-    @action(methods=['get'], detail=False, url_path='my_friends')
-    def my_friends(self, request):
-        friends = FriendRequest.objects.filter(
-            from_user=request.user,
-            status='accepted'
-        )
-        serializer = AcceptedFriendRequestSerializer(friends, many=True)
         return Response(serializer.data)
 
 

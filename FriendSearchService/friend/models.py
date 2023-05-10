@@ -11,8 +11,8 @@ class FriendRequest(models.Model):
     status = models.CharField(
         choices=(
             ('sent', 'Заявка отправлена'),
+            ('incoming', 'Есть входящая заявка'),
             ('rejected', 'Заявка отклонена'),
-            ('accepted', 'Заявка принята'),
             ('friend', 'Друзья'),
         ),
         default='sent',

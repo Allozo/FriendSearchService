@@ -50,6 +50,8 @@ urlpatterns = [
 
     # Проверка статуса дружбы
     path('api/v1/friend_request/<int:user_id>/check_status/', FriendRequestViewSet.as_view({'get': 'check_status'}), name='check_status'),
+    path('api/v1/friend_request/<int:user_id>/accept/', FriendRequestViewSet.as_view({'post': 'accept'}), name='accept_request'),
+    path('api/v1/friend_request/<int:user_id>/reject/', FriendRequestViewSet.as_view({'post': 'reject'}), name='reject_request'),
 
     # Вывод списка друзей
     path('api/v1/friends/', FriendsViewSet.as_view({'get': 'friends'}), name='friends'),

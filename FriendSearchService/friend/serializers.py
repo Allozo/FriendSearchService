@@ -29,6 +29,14 @@ class AcceptedFriendRequestSerializer(serializers.ModelSerializer):
         fields = ('user', )
 
 
+class RejectedFriendRequestSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='to_user.id')
+
+    class Meta:
+        model = FriendRequest
+        fields = ('user', )
+
+
 class IncomingFriendRequestSerializer(serializers.ModelSerializer):
     class Meta:
         model = FriendRequest
