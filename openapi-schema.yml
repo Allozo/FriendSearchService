@@ -45,8 +45,8 @@ paths:
       - api
   /api/v1/auth/users/me/:
     get:
-      operationId: meUser
-      description: ''
+      operationId: meUserGet
+      description: 'Получение текущего пользователя'
       parameters: []
       responses:
         '200':
@@ -58,7 +58,7 @@ paths:
       tags:
       - api
     put:
-      operationId: meUser
+      operationId: meUserPut
       description: ''
       parameters: []
       requestBody:
@@ -211,8 +211,8 @@ paths:
       - api
   /api/v1/people/:
     get:
-      operationId: listUsers
-      description: ''
+      operationId: ListUsers
+      description: 'Получить всех пользователей'
       parameters: []
       responses:
         '200':
@@ -227,8 +227,8 @@ paths:
       - api
   /api/v1/people/{id}/:
     get:
-      operationId: retrieveUser
-      description: ''
+      operationId: RetrieveUser
+      description: 'Получить конкретного пользователя'
       parameters:
       - name: id
         in: path
@@ -248,7 +248,7 @@ paths:
   /api/v1/friend_request/:
     get:
       operationId: listFriendRequests
-      description: ''
+      description: 'Получить все заявки, которые существуют в базе'
       parameters: []
       responses:
         '200':
@@ -264,28 +264,32 @@ paths:
   /api/v1/friend_request/incoming_requests/:
     get:
       operationId: incomingRequestsFriendRequest
-      description: ''
+      description: 'Посмотреть список входящих заявок'
       parameters: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllFriendRequest'
+                type: array
+                items:
+                  $ref: '#/components/schemas/AllFriendRequest'
           description: ''
       tags:
       - api
   /api/v1/friend_request/submitted_requests/:
     get:
       operationId: submittedRequestsFriendRequest
-      description: ''
+      description: 'Посмотреть список исходящих заявок'
       parameters: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllFriendRequest'
+                type: array
+                items:
+                  $ref: '#/components/schemas/AllFriendRequest'
           description: ''
       tags:
       - api
@@ -312,7 +316,7 @@ paths:
   /api/v1/friend_request/{user_id}/check_status/:
     get:
       operationId: checkStatusFriendRequest
-      description: ''
+      description: 'Получить статус дружбы с другим пользователем'
       parameters:
       - name: user_id
         in: path
@@ -332,14 +336,16 @@ paths:
   /api/v1/friends/:
     get:
       operationId: friendsFriendRequest
-      description: ''
+      description: 'Посмотреть список своих друзей'
       parameters: []
       responses:
         '200':
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/AllFriendRequest'
+                type: array
+                items:
+                  $ref: '#/components/schemas/AllFriendRequest'
           description: ''
       tags:
       - api
@@ -592,7 +598,7 @@ paths:
   /api/v1/people/{user_id}/send_friend_requests/:
     post:
       operationId: sendFriendRequestsUser
-      description: ''
+      description: 'Отправить пользователю заявку в друзья'
       parameters:
       - name: user_id
         in: path
@@ -623,7 +629,7 @@ paths:
   /api/v1/friend_request/{user_id}/accept/:
     post:
       operationId: acceptFriendRequest
-      description: ''
+      description: 'Принять заявку в друзья от пользователя'
       parameters:
       - name: user_id
         in: path
@@ -654,7 +660,7 @@ paths:
   /api/v1/friend_request/{user_id}/reject/:
     post:
       operationId: rejectFriendRequest
-      description: ''
+      description: 'Отклонить заявку в друзья от пользователя'
       parameters:
       - name: user_id
         in: path
@@ -685,7 +691,7 @@ paths:
   /api/v1/friends/{user_id}/delete/:
     delete:
       operationId: destroyFriendRequest
-      description: ''
+      description: 'Удалить пользователя из своих друзей'
       parameters:
       - name: user_id
         in: path
