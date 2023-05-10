@@ -49,7 +49,6 @@ migrate:
 	poetry run python FriendSearchService/manage.py makemigrations
 	poetry run python FriendSearchService/manage.py migrate
 
-# .PHONY: docker-up
-# docker-up:
-# 	docker-compose up --build -d
-
+.PHONY: docker-up
+docker-up:
+	docker-compose up --build -d

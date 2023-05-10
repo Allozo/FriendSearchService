@@ -1,0 +1,22 @@
+version: '3.8'
+
+services:
+  friend_search_service:
+    container_name: friend_search_service
+    ports:
+      - "8000:8000"
+    build:
+      context: .
+      dockerfile: Dockerfile
+    networks:
+      - net
+    volumes:
+      - db_volumes:/home/code/FriendSearchService/db.sqlite3
+    command: poetry run python FriendSearchService/manage.py runserver 0.0.0.0:8000
+
+networks:
+  net:
+    name: net
+
+volumes:
+  db_volumes:
