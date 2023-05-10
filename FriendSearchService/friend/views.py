@@ -38,12 +38,16 @@ class FriendRequestViewSet(
         ]
         return custom_urls + urls
 
-    def send(self, request, user_id, pk=None):
+    def send(self, request, user_id):
         # Получаем текущего пользователя
         from_user = request.user
 
         # Получаем пользователя, которому хотим отправить запрос
-        to_user = get_object_or_404(User, id=user_id)
+        # to_user = get_object_or_404(User, id=user_id)
+        if not User.objects.filter(id=user_id).first():
+            return Response({'status': 'Не существует пользователя к которому отправляем заявку в друзья'}, status=status.HTTP_400_BAD_REQUEST)
+
+        to_user = User.objects.get(id=user_id)
 
         if from_user == to_user:
             return Response({'status': 'Ошибка, нельзя отправит запрос в друзья себе'}, status=status.HTTP_400_BAD_REQUEST)
@@ -60,3 +64,5 @@ class FriendRequestViewSet(
 
         # Возвращаем успешный ответ
         return Response({'status': 'Запрос отправлен'}, status=status.HTTP_201_CREATED)
+
+    # def requests(self, request)
