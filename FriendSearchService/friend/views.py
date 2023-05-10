@@ -43,7 +43,6 @@ class FriendRequestViewSet(
         from_user = request.user
 
         # Получаем пользователя, которому хотим отправить запрос
-        # to_user = get_object_or_404(User, id=user_id)
         if not User.objects.filter(id=user_id).first():
             return Response({'status': 'Не существует пользователя к которому отправляем заявку в друзья'}, status=status.HTTP_400_BAD_REQUEST)
 
@@ -65,4 +64,12 @@ class FriendRequestViewSet(
         # Возвращаем успешный ответ
         return Response({'status': 'Запрос отправлен'}, status=status.HTTP_201_CREATED)
 
-    # def requests(self, request)
+    @action(methods=['get'], detail=False, url_path='incoming_requests')
+    def incoming_requests(self, request):
+        # Получаем все входящие запросы в друзья для пользователя, к которому мы обращаемся
+        incoming_requests = FriendRequest.objects.filter(to_user=request.user, status='sent')
+
+        # Сериализуем запросы в друзья
+        serializer = FriendRequestSerializer(incoming_requests, many=True)
+
+        return Response(serializer.data)
