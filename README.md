@@ -452,3 +452,20 @@ poetry run python -m pylint --jobs 4 --rcfile=setup.cfg tests FriendSearchServic
 poetry run python -m mypy --install-types tests FriendSearchService
 poetry run python -m black --skip-string-normalization --check tests FriendSearchService
 ```
+
+### Postman
+
+Для более удобного использования API можно импортировать в Postman файл `ServiseFriend.postman_collections.json`. В нём находятся запросы на все созданные ручки.
+
+Часть данных уже расставлена, чтобы сразу можно было проверить работоспособность сервиса.
+
+В тестовой базе данных `db.sqlite3` созданы несколько пользователей. Ниже приведена таблица токенов этих токенов. Их можно подставить в запросы в `headers`, чтобы имитировать использование сервисов несколькими пользователями.
+
+| user_id |   user_name |                  token                   |
+| :------ | ----------: | :--------------------------------------: |
+| 1       |        user | b8741f42fc7c9ad35a5c355a3d1afde5fb761581 |
+| 2       |   test_user | 143361ba51d0f4f69fcafe3cd7f0da1ca9c30348 |
+| 9       |  test_user3 | 57d1cfba7e3df90ef7f1e23cc90ccd6da4b8f9c7 |
+| 10      | test_user10 | b1224c47cdbfdcb1d6bf3a495bac45f547ac4f2f |
+
+Так как задание тестовое, то база сделана одна для всего. Если делать полноценные тесты, то надо делать другую базу. Но из-за нехватки времени было сделано именно так.
