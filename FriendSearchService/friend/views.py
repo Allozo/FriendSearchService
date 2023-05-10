@@ -327,7 +327,7 @@ class FriendRequestViewSet(
     def incoming_requests(self, request: Request) -> Response:
         # Получаем все входящие запросы
         incoming_requests = FriendRequest.objects.filter(
-            to_user=request.user, status='incoming'
+            from_user=request.user, status='incoming'
         )
 
         # Сериализуем запросы в друзья
@@ -339,7 +339,7 @@ class FriendRequestViewSet(
     def submitted_requests(self, request: Request) -> Response:
         # Получаем все исходящие заявки
         incoming_requests = FriendRequest.objects.filter(
-            from_user=request.user, status='incoming'
+            from_user=request.user, status='sent'
         )
 
         # Сериализуем запросы в друзья
