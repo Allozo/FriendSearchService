@@ -1,6 +1,6 @@
 from django.urls import path
-from friend.models import FriendRequest, User
-from friend.serializers import (
+from friend.models import FriendRequest, User  # pylint: disable=E0401
+from friend.serializers import (  # pylint: disable=E0401
     AcceptedFriendRequestSerializer,
     AllFriendRequestSerializer,
     DeleteFriendRequestSerializer,
@@ -13,6 +13,7 @@ from friend.serializers import (
 from rest_framework import mixins, status
 from rest_framework.decorators import action
 from rest_framework.permissions import IsAuthenticated
+from rest_framework.request import Request
 from rest_framework.response import Response
 from rest_framework.viewsets import GenericViewSet
 
@@ -22,7 +23,7 @@ class PeopleViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericVie
     serializer_class = UserSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get_urls(self):
+    def get_urls(self) -> list[path]:
         urls = super().get_urls()
         custom_urls = [
             path(
@@ -33,7 +34,9 @@ class PeopleViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericVie
         ]
         return custom_urls + urls
 
-    def send_friend_requests(self, request, user_id):
+    def send_friend_requests(  # pylint: disable=R0911
+        self, request: Request, user_id: int
+    ) -> Response:
         # Получаем текущего пользователя
         now_user = request.user
 
@@ -63,7 +66,7 @@ class PeopleViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericVie
         ):
             return Response(
                 {
-                    'status': 'Ошибка, нельзя отправить несколько запросов одному и тому же человеку'
+                    'status': 'Ошибка, нельзя отправить несколько запросов одному человеку'
                 },
                 status=status.HTTP_400_BAD_REQUEST,
             )
@@ -157,7 +160,7 @@ class FriendRequestViewSet(
     serializer_class = AllFriendRequestSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get_urls(self):
+    def get_urls(self) -> list[path]:
         urls = super().get_urls()
         custom_urls = [
             path('<int:user_id>/check_status', self.check_status, name='check_status'),
@@ -166,7 +169,9 @@ class FriendRequestViewSet(
         ]
         return custom_urls + urls
 
-    def accept(self, request, user_id):
+    def accept(  # pylint: disable=R0911
+        self, request: Request, user_id: int
+    ) -> Response:  # pylint: disable=R0911
         # Получаем пользователя, запрос которого хотим принять
         if User.objects.filter(id=user_id).first() is None:
             return Response(
@@ -256,7 +261,7 @@ class FriendRequestViewSet(
             status=status.HTTP_400_BAD_REQUEST,
         )
 
-    def reject(self, request, user_id):
+    def reject(self, request: Request, user_id: int) -> Response:
         # Получаем пользователя, запрос которого хотим принять
         if User.objects.filter(id=user_id).first() is None:
             return Response(
@@ -287,7 +292,7 @@ class FriendRequestViewSet(
 
         return Response(serializer.data, status=status.HTTP_200_OK)
 
-    def check_status(self, request, user_id):
+    def check_status(self, request: Request, user_id: int) -> Response:
         # Получаем текущего пользователя
         from_user = request.user
 
@@ -314,12 +319,12 @@ class FriendRequestViewSet(
                 {'status': 'Запрос в друзья ещё не был отправлен'},
                 status=status.HTTP_200_OK,
             )
-        else:
-            serializer = AllFriendRequestSerializer(friend_status, many=False)
-            return Response(serializer.data)
+
+        serializer = AllFriendRequestSerializer(friend_status, many=False)
+        return Response(serializer.data)
 
     @action(methods=['get'], detail=False, url_path='incoming_requests')
-    def incoming_requests(self, request):
+    def incoming_requests(self, request: Request) -> Response:
         # Получаем все входящие запросы
         incoming_requests = FriendRequest.objects.filter(
             to_user=request.user, status='incoming'
@@ -331,7 +336,7 @@ class FriendRequestViewSet(
         return Response(serializer.data)
 
     @action(methods=['get'], detail=False, url_path='submitted_requests')
-    def submitted_requests(self, request):
+    def submitted_requests(self, request: Request) -> Response:
         # Получаем все исходящие заявки
         incoming_requests = FriendRequest.objects.filter(
             from_user=request.user, status='incoming'
@@ -348,7 +353,7 @@ class FriendsViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericVi
     serializer_class = AllFriendRequestSerializer
     permission_classes = (IsAuthenticated,)
 
-    def get_urls(self):
+    def get_urls(self) -> list[path]:
         urls = super().get_urls()
         custom_urls = [
             path('', self.friends, name='friends'),
@@ -356,12 +361,12 @@ class FriendsViewSet(mixins.ListModelMixin, mixins.RetrieveModelMixin, GenericVi
         ]
         return custom_urls + urls
 
-    def friends(self, request):
+    def friends(self, request: Request) -> Response:
         friends = FriendRequest.objects.filter(from_user=request.user, status='friend')
         serializer = FriendsSerializer(friends, many=True)
         return Response(serializer.data)
 
-    def delete(self, request, user_id):
+    def delete(self, request: Request, user_id: int) -> Response:
         friends_request_to = FriendRequest.objects.filter(
             from_user=request.user, to_user=user_id, status='friend'
         ).first()

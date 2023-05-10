@@ -16,7 +16,11 @@ Including another URLconf
 """
 from django.contrib import admin
 from django.urls import include, path, re_path
-from friend.views import FriendRequestViewSet, FriendsViewSet, PeopleViewSet
+from friend.views import (  # pylint: disable=E0401
+    FriendRequestViewSet,
+    FriendsViewSet,
+    PeopleViewSet,
+)
 from rest_framework import routers
 
 people_router = routers.SimpleRouter()

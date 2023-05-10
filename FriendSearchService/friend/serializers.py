@@ -1,5 +1,6 @@
-from friend.models import FriendRequest, User
+from friend.models import FriendRequest, User  # pylint: disable=E0401
 from rest_framework import serializers
+from rest_framework.fields import Field
 
 
 class UserSerializer(serializers.ModelSerializer):
@@ -16,7 +17,7 @@ class AllFriendRequestSerializer(serializers.ModelSerializer):
         fields = ('id', 'from_user', 'to_user', 'created_at', 'status')
         read_only_fields = ('id', 'created_at', 'status')
 
-    def get_status(self, obj):
+    def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
@@ -28,7 +29,7 @@ class AcceptedFriendRequestSerializer(serializers.ModelSerializer):
         model = FriendRequest
         fields = ('user', 'status')
 
-    def get_status(self, obj):
+    def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
@@ -40,7 +41,7 @@ class RejectedFriendRequestSerializer(serializers.ModelSerializer):
         model = FriendRequest
         fields = ('user', 'status')
 
-    def get_status(self, obj):
+    def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
@@ -51,7 +52,7 @@ class IncomingFriendRequestSerializer(serializers.ModelSerializer):
         model = FriendRequest
         fields = ('from_user', 'created_at', 'status')
 
-    def get_status(self, obj):
+    def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
@@ -63,7 +64,7 @@ class SendFriendRequestSerializer(serializers.ModelSerializer):
         fields = ('to_user', 'created_at', 'status')
         read_only_fields = ('id', 'created_at', 'status')
 
-    def get_status(self, obj):
+    def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
@@ -74,7 +75,7 @@ class FriendsSerializer(serializers.ModelSerializer):
         model = FriendRequest
         fields = ('to_user', 'created_at', 'status')
 
-    def get_status(self, obj):
+    def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
@@ -86,5 +87,5 @@ class DeleteFriendRequestSerializer(serializers.ModelSerializer):
         fields = ('to_user', 'created_at', 'status')
         read_only_fields = ('id', 'created_at', 'status')
 
-    def get_status(self, obj):
+    def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
