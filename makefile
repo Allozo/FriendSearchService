@@ -1,7 +1,7 @@
 TESTS = tests
 
 
-CODE = tests src
+CODE = tests FriendSearchService
 
 
 .PHONY: venv
@@ -29,7 +29,6 @@ format: ## Formats all files
 	poetry run python -m isort $(CODE)
 	poetry run python -m black --skip-string-normalization $(CODE)
 	poetry run python -m autoflake --recursive --in-place --remove-all-unused-imports $(CODE)
-	poetry run python -m unify --in-place --recursive $(CODE)
 
 
 # .PHONY: ci

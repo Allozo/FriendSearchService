@@ -929,31 +929,6 @@ files = [
 ]
 
 [[package]]
-name = "unify"
-version = "0.5"
-description = "Modifies strings to all use the same (single/double) quote where possible."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "unify-0.5.tar.gz", hash = "sha256:8ddce812b2457212b7598fe574c9e6eb3ad69710f445391338270c7f8a71723c"},
-]
-
-[package.dependencies]
-untokenize = "*"
-
-[[package]]
-name = "untokenize"
-version = "0.1.1"
-description = "Transforms tokens into original source code (while preserving whitespace)."
-category = "main"
-optional = false
-python-versions = "*"
-files = [
-    {file = "untokenize-0.1.1.tar.gz", hash = "sha256:3865dbbbb8efb4bb5eaa72f1be7f3e0be00ea8b7f125c69cbd1f5fda926f37a2"},
-]
-
-[[package]]
 name = "urllib3"
 version = "2.0.2"
 description = "HTTP library with thread-safe connection pooling, file post, and more."
@@ -1059,4 +1034,4 @@ files = [
 [metadata]
 lock-version = "2.0"
 python-versions = "^3.11"
-content-hash = "6f3cd616f619bf2152646bd5d296e9075fe20e090516a18a371806a29d2b826a"
+content-hash = "5e88ae06c9cdb0129862415e5960eb3c8c7c94be61541eeb89ff6410f2ff948b"
