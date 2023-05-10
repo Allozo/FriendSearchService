@@ -37,8 +37,8 @@ http://127.0.0.1:8000/api/v1/auth/users/
 
 ```json
 {
-    'username': 'your_username',
-    'password': 'your_password'
+    "username": "your_username",
+    "password": "your_password"
 }
 ```
 
@@ -46,9 +46,9 @@ http://127.0.0.1:8000/api/v1/auth/users/
 
 ```json
 {
-    'username': 'your_username',
-    'password': 'your_password',
-    'email': 'your_email'
+    "username": "your_username",
+    "password": "your_password",
+    "email": "your_email"
 }
 ```
 
@@ -80,8 +80,8 @@ http://127.0.0.1:8000/api/v1/auth/token/login
 
 ```json
 {
-    'username': 'your_username',
-    'password': 'your_password'
+    "username": "your_username",
+    "password": "your_password"
 }
 ```
 
