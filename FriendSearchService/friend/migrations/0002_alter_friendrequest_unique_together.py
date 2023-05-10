@@ -7,12 +7,12 @@ from django.db import migrations
 class Migration(migrations.Migration):
     dependencies = [
         migrations.swappable_dependency(settings.AUTH_USER_MODEL),
-        ("friend", "0001_initial"),
+        ('friend', '0001_initial'),
     ]
 
     operations = [
         migrations.AlterUniqueTogether(
-            name="friendrequest",
-            unique_together={("from_user", "to_user")},
+            name='friendrequest',
+            unique_together={('from_user', 'to_user')},
         ),
     ]

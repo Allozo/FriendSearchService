@@ -5,21 +5,21 @@ from django.db import migrations, models
 
 class Migration(migrations.Migration):
     dependencies = [
-        ("friend", "0004_alter_friendrequest_status"),
+        ('friend', '0004_alter_friendrequest_status'),
     ]
 
     operations = [
         migrations.AlterField(
-            model_name="friendrequest",
-            name="status",
+            model_name='friendrequest',
+            name='status',
             field=models.CharField(
                 choices=[
-                    ("sent", "Заявка отправлена"),
-                    ("incoming", "Есть входящая заявка"),
-                    ("rejected", "Заявка отклонена"),
-                    ("friend", "Друзья"),
+                    ('sent', 'Заявка отправлена'),
+                    ('incoming', 'Есть входящая заявка'),
+                    ('rejected', 'Заявка отклонена'),
+                    ('friend', 'Друзья'),
                 ],
-                default="sent",
+                default='sent',
                 max_length=20,
             ),
         ),
