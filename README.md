@@ -16,14 +16,14 @@
 | Получение текущего пользователя               |   `GET`    | `http://127.0.0.1:8000/api/v1/auth/users/me`                                     |
 | Получить всех пользователей                   |   `GET`    | `http://127.0.0.1:8000/api/v1/people/`                                           |
 | Получить конкретного пользователя             |   `GET`    | `http://127.0.0.1:8000/api/v1/people/<int:user_id>/`                             |
-| Отправить заявку в друзья                     |   `POST`   | `http://127.0.0.1:8000/api/v1/people/<int:user_id>/send_friend_requests`         |
+| Отправить пользователю заявку в друзья        |   `POST`   | `http://127.0.0.1:8000/api/v1/people/<int:user_id>/send_friend_requests`         |
 | Получить статус дружбы с другим пользователем |   `GET`    | `http://127.0.0.1:8000/api/v1/friend_request/<int:user_id>/check_status`         |
-| Посмотреть список исходящих заявок            |   `GET`    | `http://127.0.0.1:8000/api/v1/friend_request/<int:from_user>/submitted_requests` |
-| Посмотреть список входящих заявок             |   `GET`    | `http://127.0.0.1:8000/api/v1/friend_request/<int:from_user>/incoming_requests`  |
-| Принять заявку в друзья                       |   `POST`   | `http://127.0.0.1:8000/api/v1/friend_request/<int:from_user>/accept`             |
-| Отклонить заявку в друзья                     |   `POST`   | `http://127.0.0.1:8000/api/v1/friend_request/<int:from_user>/reject`             |
+| Посмотреть список исходящих заявок            |   `GET`    | `http://127.0.0.1:8000/api/v1/friend_request/submitted_requests`                 |
+| Посмотреть список входящих заявок             |   `GET`    | `http://127.0.0.1:8000/api/v1/friend_request/incoming_requests`                  |
+| Принять заявку в друзья от пользователя       |   `POST`   | `http://127.0.0.1:8000/api/v1/friend_request/<int:user_id>/accept`               |
+| Отклонить заявку в друзья от пользователя     |   `POST`   | `http://127.0.0.1:8000/api/v1/friend_request/<int:user_id>/reject`               |
 | Посмотреть список своих друзей                |   `GET`    | `http://127.0.0.1:8000/api/v1/friends/`                                          |
-| Удалить из своих друзей                       |  `DELETE`  | `http://127.0.0.1:8000/api/v1/friends/<int:user_id>/delete`                      |
+| Удалить пользователя из своих друзей          |  `DELETE`  | `http://127.0.0.1:8000/api/v1/friends/<int:user_id>/delete`                      |
 
 ### Регистрация
 
