@@ -46,46 +46,48 @@ class RejectedFriendRequestSerializer(serializers.ModelSerializer):
 
 
 class IncomingFriendRequestSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='to_user.id')
     status = serializers.SerializerMethodField()
 
     class Meta:
         model = FriendRequest
-        fields = ('from_user', 'created_at', 'status')
+        fields = ('user', 'created_at', 'status')
 
     def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
 class SendFriendRequestSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='to_user.id')
     status = serializers.SerializerMethodField()
 
     class Meta:
         model = FriendRequest
-        fields = ('to_user', 'created_at', 'status')
-        read_only_fields = ('id', 'created_at', 'status')
+        fields = ('user', 'created_at', 'status')
 
     def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
 class FriendsSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='to_user.id')
     status = serializers.SerializerMethodField()
 
     class Meta:
         model = FriendRequest
-        fields = ('to_user', 'created_at', 'status')
+        fields = ('user', 'created_at', 'status')
 
     def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
 
 
 class DeleteFriendRequestSerializer(serializers.ModelSerializer):
+    user = serializers.CharField(source='to_user.id')
     status = serializers.SerializerMethodField()
 
     class Meta:
         model = FriendRequest
-        fields = ('to_user', 'created_at', 'status')
-        read_only_fields = ('id', 'created_at', 'status')
+        fields = ('user', 'created_at', 'status')
 
     def get_status(self, obj: Field) -> str:
         return obj.get_status_display()
