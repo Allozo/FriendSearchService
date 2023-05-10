@@ -25,6 +25,16 @@
 | Посмотреть список своих друзей                |   `GET`    | `http://127.0.0.1:8000/api/v1/friends/`                                          |
 | Удалить пользователя из своих друзей          |  `DELETE`  | `http://127.0.0.1:8000/api/v1/friends/<int:user_id>/delete`                      |
 
+### OpenAPI schema
+
+Для генерации `openapi-schema.yaml` использовалась команда:
+
+```shell
+poetry run python FriendSearchService/manage.py generateschema --file openapi-schema.yml
+```
+
+В результате появляется файл, в котором полностью описывается API сервиса.
+
 ### Регистрация
 
 Для регистрации надо отправить `POST` запрос по адресу:
