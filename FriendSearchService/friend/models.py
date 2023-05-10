@@ -12,7 +12,8 @@ class FriendRequest(models.Model):
         choices=(
             ('sent', 'Заявка отправлена'),
             ('rejected', 'Заявка отклонена'),
-            ('accepted', 'Заявка принята')
+            ('accepted', 'Заявка принята'),
+            ('friend', 'Друзья'),
         ),
         default='sent',
         max_length=20
