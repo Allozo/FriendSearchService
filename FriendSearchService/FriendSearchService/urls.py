@@ -18,18 +18,18 @@ from django.contrib import admin
 from django.urls import path, include, re_path
 from rest_framework import routers
 
-from friend.views import UserViewSet
+from friend.views import FriendRequestViewSet, PeopleViewSet, FriendsViewSet
 
 
-user_router = routers.SimpleRouter()
-user_router.register(r'user', UserViewSet)
+people_router = routers.SimpleRouter()
+people_router.register(r'people', PeopleViewSet)
+
+friend_request_router = routers.SimpleRouter()
+friend_request_router.register(r'friend_request', FriendRequestViewSet, basename='friend_request')
 
 
 urlpatterns = [
     path("admin/", admin.site.urls),
-
-    # Вывод всех пользователей
-    path('api/v1/', include(user_router.urls)),
 
     # Авторизация по токенам
     path('api/v1/auth/', include('djoser.urls')),
@@ -38,6 +38,22 @@ urlpatterns = [
     # Авторизация по сессии
     path('api/v1/session_auth/', include('rest_framework.urls')),
 
-    # path('api/v1/users/', UsersAPIList.as_view()),
-    # path('api/v1/user/<int:pk>', UserAPIView.as_view()),
+
+    # Вывод всех пользователей | конкретного пользователя
+    path('api/v1/', include(people_router.urls)),
+
+    # Отправка заявки в друзья
+    path('api/v1/people/<int:user_id>/send_friend_requests/', PeopleViewSet.as_view({'post': 'send_friend_requests'}), name='send_friend_request'),
+
+    # Вывод всех заявок в друзья
+    path('api/v1/', include(friend_request_router.urls)),
+
+    # Проверка статуса дружбы
+    path('api/v1/friend_request/<int:user_id>/check_status/', FriendRequestViewSet.as_view({'get': 'check_status'}), name='check_status'),
+    path('api/v1/friend_request/<int:user_id>/accept/', FriendRequestViewSet.as_view({'post': 'accept'}), name='accept_request'),
+    path('api/v1/friend_request/<int:user_id>/reject/', FriendRequestViewSet.as_view({'post': 'reject'}), name='reject_request'),
+
+    # Вывод списка друзей
+    path('api/v1/friends/', FriendsViewSet.as_view({'get': 'friends'}), name='friends'),
+    path('api/v1/friends/<int:user_id>/delete/', FriendsViewSet.as_view({'delete': 'delete'}), name='friend_delete'),
 ]
