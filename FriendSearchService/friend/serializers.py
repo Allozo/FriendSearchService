@@ -23,24 +23,34 @@ class AllFriendRequestSerializer(serializers.ModelSerializer):
 
 class AcceptedFriendRequestSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='to_user.id')
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = FriendRequest
-        fields = ('user', )
+        fields = ('user', 'status')
+
+    def get_status(self, obj):
+        return obj.get_status_display()
 
 
 class RejectedFriendRequestSerializer(serializers.ModelSerializer):
     user = serializers.CharField(source='to_user.id')
+    status = serializers.SerializerMethodField()
 
     class Meta:
         model = FriendRequest
-        fields = ('user', )
+        fields = ('user', 'status')
+
+    def get_status(self, obj):
+        return obj.get_status_display()
 
 
 class IncomingFriendRequestSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = FriendRequest
-        fields = ('from_user', 'created_at')
+        fields = ('from_user', 'created_at', 'status')
 
     def get_status(self, obj):
         return obj.get_status_display()
@@ -59,9 +69,14 @@ class SendFriendRequestSerializer(serializers.ModelSerializer):
 
 
 class FriendsSerializer(serializers.ModelSerializer):
+    status = serializers.SerializerMethodField()
+
     class Meta:
         model = FriendRequest
-        fields = ('to_user', 'created_at')
+        fields = ('to_user', 'created_at', 'status')
+
+    def get_status(self, obj):
+        return obj.get_status_display()
 
 
 class DeleteFriendRequestSerializer(serializers.ModelSerializer):

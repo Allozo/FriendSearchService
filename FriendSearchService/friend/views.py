@@ -32,7 +32,7 @@ class PeopleViewSet(
 
     def send_friend_requests(self, request, user_id):
         # Получаем текущего пользователя
-        from_user = request.user
+        now_user = request.user
 
         # Получаем пользователя, которому хотим отправить запрос
         if User.objects.filter(id=user_id).first() is None:
@@ -40,21 +40,59 @@ class PeopleViewSet(
 
         to_user = User.objects.get(id=user_id)
 
-        if from_user == to_user:
+        if now_user == to_user:
             return Response({'status': 'Ошибка, нельзя отправит запрос в друзья себе'}, status=status.HTTP_400_BAD_REQUEST)
 
         # Если заявка уже есть, то нельзя отправить её ещё раз
-        if FriendRequest.objects.filter(from_user=from_user, to_user=to_user).first() is not None:
+        if FriendRequest.objects.filter(from_user=now_user, to_user=to_user, status='sent').first() is not None:
             return Response({'status': 'Ошибка, нельзя отправить несколько запросов одному и тому же человеку'}, status=status.HTTP_400_BAD_REQUEST)
 
+        # Если другой пользователь отклонил заявку
+        if FriendRequest.objects.filter(from_user=to_user, to_user=now_user, status='rejected').first() is not None:
+            return Response({'status': 'Ошибка, вашу заявку отклонили'}, status=status.HTTP_400_BAD_REQUEST)
+
+        # Если мы отклонили отклонил заявку
+        if FriendRequest.objects.filter(from_user=now_user, to_user=to_user, status='rejected').first() is not None:
+            friend_request_incoming = FriendRequest.objects.filter(from_user=now_user, to_user=to_user, status='rejected').first()
+            friend_request_sent = FriendRequest.objects.filter(from_user=to_user, to_user=now_user, status='sent').first()
+
+            friend_request_incoming.status = 'friend'
+            friend_request_sent.status = 'friend'
+
+            friend_request_sent.save()
+            friend_request_incoming.save()
+
+            serializer = AcceptedFriendRequestSerializer(friend_request_incoming, many=False)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # Если есть заявка в друзья от другого пользователя
+        if FriendRequest.objects.filter(from_user=to_user, to_user=now_user, status='sent').first() is not None:
+            friend_request_incoming = FriendRequest.objects.filter(from_user=now_user, to_user=to_user, status='incoming').first()
+            friend_request_sent = FriendRequest.objects.filter(from_user=to_user, to_user=now_user, status='sent').first()
+
+            friend_request_incoming.status = 'friend'
+            friend_request_sent.status = 'friend'
+
+            friend_request_sent.save()
+            friend_request_incoming.save()
+
+            serializer = AcceptedFriendRequestSerializer(friend_request_incoming, many=False)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
         # Создаем запрос на дружбу
-        friend_request = FriendRequest(from_user=from_user, to_user=to_user)
+        friend_request_sent = FriendRequest(from_user=now_user, to_user=to_user, status='sent')
+        friend_request_incoming = FriendRequest(from_user=to_user, to_user=now_user, status='incoming')
 
         # Сохраняем запрос на дружбу
-        friend_request.save()
+        friend_request_sent.save()
+        friend_request_incoming.save()
+
+        serializer = SendFriendRequestSerializer(friend_request_sent, many=False)
 
         # Возвращаем успешный ответ
-        return Response({'status': 'Запрос отправлен'}, status=status.HTTP_201_CREATED)
+        return Response(serializer.data, status=status.HTTP_201_CREATED)
 
 
 class FriendRequestViewSet(
@@ -78,43 +116,92 @@ class FriendRequestViewSet(
     def accept(self, request, user_id):
         # Получаем пользователя, запрос которого хотим принять
         if User.objects.filter(id=user_id).first() is None:
-            return Response({'status': 'Не существует пользователя, которого хотим проверить'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'Не существует пользователя, которого хотим принять в друзья'}, status=status.HTTP_404_NOT_FOUND)
 
         now_user = request.user
 
-        # Входящее
+        # Делаем проверку на существование хоть каких-то заявок
+
         friends_request_to = FriendRequest.objects.filter(
             from_user=now_user,
             to_user=user_id,
-            status__in=['incoming', 'rejected']
         ).first()
         # Исходящее
         friends_request_from = FriendRequest.objects.filter(
             from_user=user_id,
             to_user=now_user,
-            status__in=['sent', 'rejected']
         ).first()
 
         if friends_request_to is None:
-            return Response({'status': f'Нет заявки `incoming` или `rejected` от {now_user} к {user_id}'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': f'Нет заявки `incoming`от {now_user} к {user_id}'}, status=status.HTTP_404_NOT_FOUND)
 
         if friends_request_from is None:
-            return Response({'status': f'Нет заявки `sent` или `rejected` от {user_id} к {now_user}'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': f'Нет заявки `sent`от {user_id} к {now_user}'}, status=status.HTTP_404_NOT_FOUND)
 
-        friends_request_to.status = 'friend'
-        friends_request_from.status = 'friend'
+        # 1 случай, где есть входящая заявка и мы её принимаем
+        friends_request_to = FriendRequest.objects.filter(
+            from_user=now_user,
+            to_user=user_id,
+            status='incoming'
+        ).first()
+        friends_request_from = FriendRequest.objects.filter(
+            from_user=user_id,
+            to_user=now_user,
+            status='sent'
+        ).first()
+        if friends_request_to is not None and friends_request_from is not None:
+            friends_request_to.status = 'friend'
+            friends_request_from.status = 'friend'
 
-        friends_request_to.save()
-        friends_request_from.save()
+            friends_request_to.save()
+            friends_request_from.save()
 
-        serializer = AcceptedFriendRequestSerializer(friends_request_to, many=False)
+            serializer = AcceptedFriendRequestSerializer(friends_request_to, many=False)
 
-        return Response(serializer.data, status=status.HTTP_200_OK)
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # 2 случай, где есть нам отправили заявку, а мы раньше её отклонили
+        friends_request_to = FriendRequest.objects.filter(
+            from_user=now_user,
+            to_user=user_id,
+            status='rejected'
+        ).first()
+        friends_request_from = FriendRequest.objects.filter(
+            from_user=user_id,
+            to_user=now_user,
+            status='sent'
+        ).first()
+        if friends_request_to is not None and friends_request_from is not None:
+            friends_request_to.status = 'friend'
+            friends_request_from.status = 'friend'
+
+            friends_request_to.save()
+            friends_request_from.save()
+
+            serializer = AcceptedFriendRequestSerializer(friends_request_to, many=False)
+
+            return Response(serializer.data, status=status.HTTP_200_OK)
+
+        # 3 случай, где мы отправили заявку, но её отклонили
+        friends_request_to = FriendRequest.objects.filter(
+            from_user=now_user,
+            to_user=user_id,
+            status='sent'
+        ).first()
+        friends_request_from = FriendRequest.objects.filter(
+            from_user=user_id,
+            to_user=now_user,
+            status='rejected'
+        ).first()
+        if friends_request_to is not None and friends_request_from is not None:
+            return Response({'status': 'Ошибка: Вы не можете принять заявку, так как вам отказали'}, status=status.HTTP_400_BAD_REQUEST)
+
+        return Response({'status': 'Ошибка: При принятии заявки произошла ошибка'}, status=status.HTTP_400_BAD_REQUEST)
 
     def reject(self, request, user_id):
         # Получаем пользователя, запрос которого хотим принять
         if User.objects.filter(id=user_id).first() is None:
-            return Response({'status': 'Не существует пользователя, которого хотим проверить'}, status=status.HTTP_400_BAD_REQUEST)
+            return Response({'status': 'Не существует пользователя, которого хотим проверить'}, status=status.HTTP_404_NOT_FOUND)
 
         now_user = request.user
 
@@ -124,29 +211,17 @@ class FriendRequestViewSet(
             to_user=user_id,
             status='incoming',
         ).first()
-        # Исходящее
-        friends_request_from = FriendRequest.objects.filter(
-            from_user=user_id,
-            to_user=now_user,
-            status='sent',
-        ).first()
 
         if friends_request_to is None:
             return Response({'status': f'Нет заявки `incoming` от {now_user} к {user_id}'}, status=status.HTTP_400_BAD_REQUEST)
 
-        if friends_request_from is None:
-            return Response({'status': f'Нет заявки `sent` от {user_id} к {now_user}'}, status=status.HTTP_400_BAD_REQUEST)
-
         friends_request_to.status = 'rejected'
-        friends_request_from.status = 'rejected'
 
         friends_request_to.save()
-        friends_request_from.save()
 
         serializer = RejectedFriendRequestSerializer(friends_request_to, many=False)
 
         return Response(serializer.data, status=status.HTTP_200_OK)
-
 
     def check_status(self, request, user_id):
         # Получаем текущего пользователя
@@ -171,7 +246,7 @@ class FriendRequestViewSet(
     @action(methods=['get'], detail=False, url_path='incoming_requests')
     def incoming_requests(self, request):
         # Получаем все входящие запросы
-        incoming_requests = FriendRequest.objects.filter(to_user=request.user, status='sent')
+        incoming_requests = FriendRequest.objects.filter(to_user=request.user, status='incoming')
 
         # Сериализуем запросы в друзья
         serializer = IncomingFriendRequestSerializer(incoming_requests, many=True)
@@ -181,7 +256,7 @@ class FriendRequestViewSet(
     @action(methods=['get'], detail=False, url_path='submitted_requests')
     def submitted_requests(self, request):
         # Получаем все исходящие заявки
-        incoming_requests = FriendRequest.objects.filter(from_user=request.user, status='sent')
+        incoming_requests = FriendRequest.objects.filter(from_user=request.user, status='incoming')
 
         # Сериализуем запросы в друзья
         serializer = SendFriendRequestSerializer(incoming_requests, many=True)
@@ -235,7 +310,7 @@ class FriendsViewSet(
             return Response({'status': 'С данным пользователем вы не друзья'}, status=status.HTTP_400_BAD_REQUEST)
 
         friends_request_to.status = 'rejected'
-        friends_request_from.status = 'rejected'
+        friends_request_from.status = 'sent'
 
         friends_request_to.save()
         friends_request_from.save()
